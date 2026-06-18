@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="현장관리">
+<title>건설현장 통합관리 — MR.BIG</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;background:#f5f5f5;color:#1a1a1a;max-width:430px;margin:0 auto;min-height:100vh;}
+.screen{display:none;min-height:100vh;background:#f5f5f5;padding-bottom:80px;}
+.screen.active{display:block;}
+.topbar{background:#fff;padding:14px 16px 10px;border-bottom:1px solid #eee;position:sticky;top:0;z-index:100;}
+.topbar-title{font-size:17px;font-weight:600;color:#1a1a1a;}
+.topbar-sub{font-size:12px;color:#888;margin-top:2px;}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom);}
+.nav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;}
+.nav-icon{font-size:22px;color:#aaa;display:block;}
+.nav-label{font-size:10px;color:#aaa;margin-top:2px;}
+.nav-item.active .nav-icon,.nav-item.active .nav-label{color:#2563eb;}
+.content{padding:16px;}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #f0f0f0;}
+.card-title{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
+.stat-box{background:#f8f9ff;border-radius:12px;padding:14px;text-align:center;}
+.stat-num{font-size:26px;font-weight:700;color:#2563eb;}
+.stat-lbl{font-size:11px;color:#888;margin-top:3px;}
+.menu-item{display:flex;align-items:center;gap:12px;padding:13px;background:#fff;border-radius:12px;margin-bottom:8px;cursor:pointer;border:1px solid #f0f0f0;}
+.menu-item:active{background:#f8f9ff;}
+.menu-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.menu-txt{flex:1;}
+.menu-name{font-size:15px;font-weight:500;}
+.menu-desc{font-size:12px;color:#888;margin-top:2px;}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;}
+.bd-green{background:#dcfce7;color:#16a34a;}
+.bd-red{background:#fee2e2;color:#dc2626;}
+.bd-yellow{background:#fef9c3;color:#ca8a04;}
+.bd-blue{background:#dbeafe;color:#2563eb;}
+.bd-gray{background:#f3f4f6;color:#6b7280;}
+.btn{width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;border:none;margin-bottom:10px;}
+.btn-primary{background:#2563eb;color:#fff;}
+.btn-primary:active{background:#1d4ed8;}
+.btn-success{background:#16a34a;color:#fff;}
+.btn-success:active{background:#15803d;}
+.btn-outline{background:#fff;color:#2563eb;border:1.5px solid #2563eb;}
+.btn-gray{background:#f3f4f6;color:#374151;}
+.inp-group{margin-bottom:12px;}
+.inp-label{font-size:12px;font-weight:600;color:#555;margin-bottom:5px;display:block;}
+input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;background:#fff;color:#1a1a1a;outline:none;}
+input:focus,select:focus,textarea:focus{border-color:#2563eb;}
+textarea{resize:none;height:72px;}
+.inp-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.worker-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f5f5f5;}
+.worker-row:last-child{border-bottom:none;}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.av-in{background:#dcfce7;color:#16a34a;}
+.av-out{background:#fee2e2;color:#dc2626;}
+.av-none{background:#f3f4f6;color:#9ca3af;}
+.winfo{flex:1;}
+.wname{font-size:14px;font-weight:600;}
+.wrole{font-size:12px;color:#888;margin-top:1px;}
+.wtime{font-size:11px;color:#aaa;margin-top:1px;}
+.section-sep{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:16px 0 10px;}
+.qr-frame{width:160px;height:160px;margin:0 auto;border:3px solid #2563eb;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;}
+.qr-corner{position:absolute;width:22px;height:22px;border-color:#2563eb;border-style:solid;}
+.qr-tl{top:-3px;left:-3px;border-width:4px 0 0 4px;border-radius:5px 0 0 0;}
+.qr-tr{top:-3px;right:-3px;border-width:4px 4px 0 0;border-radius:0 5px 0 0;}
+.qr-bl{bottom:-3px;left:-3px;border-width:0 0 4px 4px;border-radius:0 0 0 5px;}
+.qr-br{bottom:-3px;right:-3px;border-width:0 4px 4px 0;border-radius:0 0 5px 0;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5;font-size:13px;}
+.info-row:last-child{border-bottom:none;}
+.info-lbl{color:#888;}
+.info-val{font-weight:600;color:#1a1a1a;}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+.check-item:last-child{border-bottom:none;}
+.chkbox{width:22px;height:22px;border:2px solid #d1d5db;border-radius:6px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:1px;}
+.chkbox.on{background:#2563eb;border-color:#2563eb;color:#fff;}
+.chk-txt{font-size:13px;line-height:1.5;flex:1;}
+.risk-item{padding:11px;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:8px;}
+.risk-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.risk-name{font-size:13px;font-weight:600;flex:1;}
+.rl-h{background:#fee2e2;color:#dc2626;font-size:11px;padding:2px 7px;border-radius:8px;font-weight:600;}
+.rl-m{background:#fef9c3;color:#ca8a04;font-size:11px;padding:2px 7px;border-radius:8px;font-weight:600;}
+.rl-l{background:#dcfce7;color:#16a34a;font-size:11px;padding:2px 7px;border-radius:8px;font-weight:600;}
+.risk-measure{font-size:12px;color:#666;line-height:1.5;}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.photo-cell{aspect-ratio:4/3;border-radius:10px;border:1px solid #e5e7eb;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#f8f9ff;}
+.photo-overlay{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);padding:4px 7px;}
+.photo-cap{font-size:11px;color:#fff;}
+.ai-spin{text-align:center;padding:3rem 0;}
+.dots{display:flex;justify-content:center;gap:7px;margin-bottom:14px;}
+.dot{width:9px;height:9px;border-radius:50%;background:#2563eb;animation:pulse 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.ai-msg{font-size:13px;color:#888;}
+.retain-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+.retain-row:last-child{border-bottom:none;}
+.retain-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.retain-name{font-size:13px;font-weight:600;}
+.retain-law{font-size:11px;color:#888;margin-top:2px;}
+.alert-box{border-radius:12px;padding:13px;margin-bottom:10px;display:flex;align-items:flex-start;gap:10px;}
+.alert-danger{background:#fee2e2;}
+.alert-warning{background:#fef9c3;}
+.alert-info{background:#dbeafe;}
+.alert-title{font-size:13px;font-weight:700;}
+.alert-sub{font-size:12px;margin-top:3px;}
+.alert-danger .alert-title,.alert-danger .alert-sub{color:#dc2626;}
+.alert-warning .alert-title,.alert-warning .alert-sub{color:#ca8a04;}
+.alert-info .alert-title,.alert-info .alert-sub{color:#2563eb;}
+.progress-wrap{margin-bottom:12px;}
+.progress-lbl{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:5px;}
+.progress-bar{height:7px;background:#f0f0f0;border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:4px;background:#2563eb;}
+.tab-row{display:flex;background:#f3f4f6;border-radius:10px;padding:3px;margin-bottom:14px;gap:3px;}
+.tab-btn{flex:1;padding:7px;font-size:12px;border:none;background:transparent;border-radius:8px;cursor:pointer;color:#888;font-weight:500;}
+.tab-btn.active{background:#fff;color:#2563eb;font-weight:700;}
+.day-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f5f5f5;cursor:pointer;}
+.day-row:last-child{border-bottom:none;}
+.day-date{font-size:13px;font-weight:600;min-width:78px;}
+.day-tags{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+.day-tag{font-size:10px;padding:2px 6px;border-radius:6px;font-weight:600;}
+.storage-bar{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin:8px 0;}
+.storage-fill{height:100%;border-radius:4px;background:#2563eb;}
+.success-wrap{text-align:center;padding:2.5rem 0;}
+.success-ico{width:64px;height:64px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;}
+.success-title{font-size:17px;font-weight:700;margin-bottom:6px;}
+.success-sub{font-size:13px;color:#888;}
+.sign-box{background:#f8f9ff;border:1.5px dashed #d1d5db;border-radius:10px;height:64px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:6px;}
+.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.weather-btn{padding:11px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;cursor:pointer;background:#fff;color:#1a1a1a;text-align:center;font-weight:500;}
+.weather-btn.active{background:#dbeafe;border-color:#2563eb;color:#2563eb;}
+</style>
+</head>
+<body>
+
+<!-- ===== 홈 대시보드 ===== -->
+<div id="s-home" class="screen active">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div class="topbar-title">건설현장 관리</div>
+        <div class="topbar-sub" id="home-date"></div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="badge bd-blue" onclick="go('s-alert')" style="cursor:pointer;border:none;">알림 3</button>
+        <button class="badge bd-gray" onclick="go('s-storage')" style="cursor:pointer;border:none;">데이터</button>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div style="font-size:13px;color:#888;margin-bottom:10px;">사천 사남면 신축공사 (A동 2층·B동 1층)</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="h-in">5</div><div class="stat-lbl">출근 인원</div></div>
+        <div class="stat-box"><div class="stat-num" id="h-score">87</div><div class="stat-lbl">안전점수</div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-lbl"><span>A동 골조</span><span>62%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:62%;"></div></div>
+      </div>
+      <div class="progress-wrap" style="margin:0;">
+        <div class="progress-lbl"><span>B동 골조</span><span>38%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:38%;background:#16a34a;"></div></div>
+      </div>
+    </div>
+
+    <div class="section-sep">오늘 할 일</div>
+    <div class="menu-item" onclick="go('s-attend')">
+      <div class="menu-ico" style="background:#dcfce7;"><i class="ti ti-users" style="color:#16a34a;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">출퇴근 관리</div><div class="menu-desc">출근 5명 · QR 스캔</div></div>
+      <span class="badge bd-green">완료</span>
+    </div>
+    <div class="menu-item" onclick="go('s-report')">
+      <div class="menu-ico" style="background:#dbeafe;"><i class="ti ti-file-text" style="color:#2563eb;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">공사일보</div><div class="menu-desc">AI 자동 작성</div></div>
+      <span class="badge bd-gray">미작성</span>
+    </div>
+    <div class="menu-item" onclick="go('s-safety')">
+      <div class="menu-ico" style="background:#fef9c3;"><i class="ti ti-shield" style="color:#ca8a04;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">안전서류</div><div class="menu-desc">TBM 완료 · 위험성평가 미완</div></div>
+      <span class="badge bd-yellow">1 미완</span>
+    </div>
+    <div class="menu-item" onclick="go('s-photo')">
+      <div class="menu-ico" style="background:#f3f4f6;"><i class="ti ti-camera" style="color:#6b7280;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">사진 관리</div><div class="menu-desc">공정 3 · 품질 2 · 안전 1</div></div>
+      <span class="badge bd-blue">6장</span>
+    </div>
+    <div class="menu-item" onclick="go('s-workers')">
+      <div class="menu-ico" style="background:#f3e8ff;"><i class="ti ti-id-badge" style="color:#7c3aed;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">작업자 관리</div><div class="menu-desc">등록 5명 · QR 발급</div></div>
+      <span class="badge bd-green">5명</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 출퇴근 ===== -->
+<div id="s-attend" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div><div class="topbar-title">출퇴근 관리</div><div class="topbar-sub" id="att-date"></div></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="att-in">5</div><div class="stat-lbl">출근</div></div>
+      <div class="stat-box"><div class="stat-num" id="att-out">0</div><div class="stat-lbl">퇴근</div></div>
+    </div>
+    <div style="background:#dcfce7;border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <i class="ti ti-map-pin" style="color:#16a34a;font-size:16px;" aria-hidden="true"></i>
+      <span style="font-size:13px;color:#16a34a;font-weight:600;">GPS 현장 확인됨 — 사천 사남면 200m 이내</span>
+    </div>
+    <div class="card">
+      <div class="card-title">금일 출역 현황</div>
+      <div id="att-list"></div>
+    </div>
+    <button class="btn btn-primary" onclick="go('s-qr')"><i class="ti ti-scan" aria-hidden="true"></i> QR 스캔 출퇴근</button>
+    <button class="btn btn-success" onclick="go('s-daily-report')"><i class="ti ti-file-text" aria-hidden="true"></i> 출역일보 생성</button>
+  </div>
+</div>
+
+<!-- ===== QR 스캔 ===== -->
+<div id="s-qr" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-attend')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">QR 스캔</div>
+    </div>
+  </div>
+  <div class="content">
+    <div style="text-align:center;padding:1.5rem 0 1rem;">
+      <div class="qr-frame" style="margin-bottom:14px;">
+        <div class="qr-corner qr-tl"></div><div class="qr-corner qr-tr"></div>
+        <div class="qr-corner qr-bl"></div><div class="qr-corner qr-br"></div>
+        <i class="ti ti-qrcode" style="font-size:60px;color:#cbd5e1;" aria-hidden="true"></i>
+      </div>
+      <div style="font-size:13px;color:#888;">작업자 QR코드를 프레임 안에 맞춰주세요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">테스트 — 작업자 선택</div>
+      <div id="qr-worker-list"></div>
+    </div>
+    <div id="qr-result-wrap" style="display:none;">
+      <div class="card" id="qr-result-card">
+        <div id="qr-result-name" style="font-size:18px;font-weight:700;margin-bottom:4px;"></div>
+        <div id="qr-result-sub" style="font-size:13px;color:#888;"></div>
+        <div style="margin-top:10px;">
+          <div class="info-row"><span class="info-lbl">시각</span><span class="info-val" id="qr-result-time"></span></div>
+          <div class="info-row"><span class="info-lbl">GPS</span><span class="info-val" style="color:#16a34a;">현장 내 확인</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 출역일보 ===== -->
+<div id="s-daily-report" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-attend')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">출역일보</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="info-row"><span class="info-lbl">공사명</span><span class="info-val">사천 사남면 신축공사</span></div>
+      <div class="info-row"><span class="info-lbl">일자</span><span class="info-val" id="dr-date"></span></div>
+      <div class="info-row"><span class="info-lbl">총 출역</span><span class="info-val">5명</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">직종별 현황</div>
+      <div class="info-row"><span class="info-lbl">철근공</span><span class="info-val">2명</span></div>
+      <div class="info-row"><span class="info-lbl">형틀목수</span><span class="info-val">2명</span></div>
+      <div class="info-row"><span class="info-lbl">보통인부</span><span class="info-val">1명</span></div>
+    </div>
+    <button class="btn btn-primary"><i class="ti ti-download" aria-hidden="true"></i> PDF 출력</button>
+    <button class="btn btn-outline" onclick="go('s-report')"><i class="ti ti-robot" aria-hidden="true"></i> AI 공사일보 연결</button>
+  </div>
+</div>
+
+<!-- ===== 공사일보 ===== -->
+<div id="s-report" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div><div class="topbar-title">공사일보</div><div class="topbar-sub" id="rep-date-top"></div></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">출역 현황 (자동)</div>
+      <div class="stat-grid" style="margin-bottom:0;">
+        <div class="stat-box"><div class="stat-num">5</div><div class="stat-lbl">총 출역</div></div>
+        <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">직종 수</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">날씨</div>
+      <div class="weather-grid">
+        <button class="weather-btn active" id="w-맑음" onclick="selW('맑음')"><i class="ti ti-sun" aria-hidden="true"></i> 맑음</button>
+        <button class="weather-btn" id="w-흐림" onclick="selW('흐림')"><i class="ti ti-cloud" aria-hidden="true"></i> 흐림</button>
+        <button class="weather-btn" id="w-비" onclick="selW('비')"><i class="ti ti-cloud-rain" aria-hidden="true"></i> 비</button>
+        <button class="weather-btn" id="w-강풍" onclick="selW('강풍')"><i class="ti ti-wind" aria-hidden="true"></i> 강풍</button>
+      </div>
+      <div class="inp-row2">
+        <div><label class="inp-label">기온(°C)</label><input type="text" id="r-temp" value="28" style="text-align:center;"></div>
+        <div><label class="inp-label">습도(%)</label><input type="text" id="r-humid" value="65" style="text-align:center;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">작업 내용</div>
+      <div class="inp-group"><label class="inp-label">주요 공종</label>
+        <select id="r-work"><option>A동 2층 슬래브 철근 배근</option><option>거푸집 설치</option><option>콘크리트 타설</option><option>거푸집 해체</option><option>비계 설치</option></select>
+      </div>
+      <div class="inp-group"><label class="inp-label">작업 위치</label><input type="text" id="r-loc" placeholder="예) A동 2층 슬래브"></div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">상세 내용</label><textarea id="r-detail" placeholder="추가 작업 내용"></textarea></div>
+    </div>
+    <div class="card">
+      <div class="inp-group"><label class="inp-label">투입 자재</label><input type="text" id="r-mat" placeholder="HD19 철근 2톤, 합판 50장"></div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">투입 장비</label><input type="text" id="r-equip" placeholder="타워크레인 1대, 펌프카 1대"></div>
+    </div>
+    <div class="card">
+      <div class="inp-group" style="margin:0;"><label class="inp-label">특이사항</label><textarea id="r-special" placeholder="안전사고, 품질이슈, 기타"></textarea></div>
+    </div>
+    <button class="btn btn-primary" onclick="genReport()"><i class="ti ti-robot" aria-hidden="true"></i> AI 공사일보 자동 생성</button>
+    <button class="btn btn-gray" onclick="go('s-home')">나중에 작성</button>
+  </div>
+</div>
+
+<!-- ===== AI 로딩 ===== -->
+<div id="s-ai-load" class="screen">
+  <div class="content">
+    <div class="ai-spin" style="padding-top:6rem;">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="ai-msg" id="ai-load-msg">AI 분석 중...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 공사일보 결과 ===== -->
+<div id="s-report-result" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-report')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">AI 생성 완료</div>
+    </div>
+  </div>
+  <div class="content">
+    <div style="background:#dbeafe;border-radius:10px;padding:11px 13px;display:flex;gap:8px;align-items:center;margin-bottom:14px;">
+      <i class="ti ti-check" style="color:#2563eb;font-size:16px;" aria-hidden="true"></i>
+      <span style="font-size:13px;color:#2563eb;font-weight:600;">AI가 공사일보 초안을 생성했습니다</span>
+    </div>
+    <div class="card">
+      <div class="info-row"><span class="info-lbl">공사명</span><span class="info-val">사천 사남면 신축공사</span></div>
+      <div class="info-row"><span class="info-lbl">일자</span><span class="info-val" id="rr-date"></span></div>
+      <div class="info-row"><span class="info-lbl">날씨</span><span class="info-val" id="rr-weather"></span></div>
+      <div class="info-row"><span class="info-lbl">출역인원</span><span class="info-val">5명</span></div>
+      <div class="info-row"><span class="info-lbl">현장대리인</span><span class="info-val">김태완</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">금일 작업내용</div>
+      <div style="font-size:13px;line-height:1.7;color:#1a1a1a;" id="rr-work"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">자재 및 장비</div>
+      <div style="font-size:13px;line-height:1.7;color:#1a1a1a;" id="rr-mat"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">익일 작업 계획</div>
+      <div style="font-size:13px;line-height:1.7;color:#1a1a1a;" id="rr-next"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">특이사항</div>
+      <div style="font-size:13px;line-height:1.7;color:#1a1a1a;" id="rr-special"></div>
+    </div>
+    <button class="btn btn-success" onclick="saveReport()"><i class="ti ti-device-floppy" aria-hidden="true"></i> 저장</button>
+    <button class="btn btn-outline"><i class="ti ti-download" aria-hidden="true"></i> PDF 출력</button>
+  </div>
+</div>
+
+<!-- ===== 안전서류 ===== -->
+<div id="s-safety" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">안전서류</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num">1</div><div class="stat-lbl">완료</div></div>
+      <div class="stat-box"><div class="stat-num">2</div><div class="stat-lbl">미완료</div></div>
+    </div>
+    <div class="menu-item" onclick="go('s-tbm')">
+      <div class="menu-ico" style="background:#fef9c3;"><i class="ti ti-speakerphone" style="color:#ca8a04;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">TBM 일지</div><div class="menu-desc">작업 전 안전교육</div></div>
+      <span class="badge bd-green">완료</span>
+    </div>
+    <div class="menu-item" onclick="go('s-risk')">
+      <div class="menu-ico" style="background:#fee2e2;"><i class="ti ti-alert-triangle" style="color:#dc2626;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">위험성평가서</div><div class="menu-desc">공종별 위험요인 평가</div></div>
+      <span class="badge bd-gray">미작성</span>
+    </div>
+    <div class="menu-item" onclick="go('s-checklist')">
+      <div class="menu-ico" style="background:#dbeafe;"><i class="ti ti-clipboard-check" style="color:#2563eb;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">안전점검 체크리스트</div><div class="menu-desc">일일 현장 점검</div></div>
+      <span class="badge bd-gray">미작성</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TBM ===== -->
+<div id="s-tbm" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-safety')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">TBM 일지</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="info-row"><span class="info-lbl">일자</span><span class="info-val" id="tbm-date"></span></div>
+      <div class="info-row"><span class="info-lbl">교육 시각</span><span class="info-val">08:00</span></div>
+      <div class="info-row"><span class="info-lbl">참석 인원</span><span class="info-val">5명</span></div>
+    </div>
+    <div class="card">
+      <div class="inp-group"><label class="inp-label">금일 주요 작업</label>
+        <select id="tbm-work"><option>A동 2층 슬래브 철근 배근</option><option>거푸집 설치</option><option>콘크리트 타설</option></select>
+      </div>
+      <div class="inp-group"><label class="inp-label">주요 위험요인</label>
+        <select id="tbm-risk"><option>고소작업 추락 위험</option><option>중량물 협착</option><option>낙하물 위험</option><option>감전 위험</option></select>
+      </div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">안전 지시사항</label>
+        <textarea id="tbm-inst" placeholder="안전모, 안전화, 안전대 착용 필수&#10;작업 전 장비 점검 실시..."></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">참석자 서명</div>
+      <div id="tbm-att"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">현장대리인 서명</div>
+      <div class="sign-box" onclick="signTBM()" id="tbm-sign">
+        <span style="font-size:13px;color:#aaa;" id="tbm-sign-txt"><i class="ti ti-signature" aria-hidden="true"></i> 터치하여 서명</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="aiTBM()"><i class="ti ti-robot" aria-hidden="true"></i> AI 지시사항 자동 작성</button>
+    <button class="btn btn-success" onclick="saveTBM()"><i class="ti ti-device-floppy" aria-hidden="true"></i> 저장</button>
+  </div>
+</div>
+
+<!-- ===== 위험성평가 ===== -->
+<div id="s-risk" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-safety')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">위험성평가서</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="inp-group" style="margin:0;"><label class="inp-label">평가 공종</label>
+        <select id="risk-work"><option>철근 배근 작업</option><option>거푸집 설치/해체</option><option>콘크리트 타설</option><option>비계 설치</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">위험요인 및 감소대책</div>
+      <div id="risk-items">
+        <div class="risk-item"><div class="risk-head"><span class="risk-name">추락 — 고소작업 안전대 미착용</span><span class="rl-h">상</span></div><div class="risk-measure">안전대 착용 의무화, 추락방지망 설치, 작업발판 점검</div></div>
+        <div class="risk-item"><div class="risk-head"><span class="risk-name">협착 — 철근 운반 중 끼임</span><span class="rl-m">중</span></div><div class="risk-measure">2인 1조 작업, 신호수 배치, 안전장갑 착용</div></div>
+        <div class="risk-item"><div class="risk-head"><span class="risk-name">낙하 — 상부 자재 낙하</span><span class="rl-m">중</span></div><div class="risk-measure">낙하물 방호망 설치, 안전모 착용, 출입 통제</div></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="aiRisk()"><i class="ti ti-robot" aria-hidden="true"></i> AI 위험성평가 자동 생성</button>
+    <button class="btn btn-success" onclick="go('s-safety')"><i class="ti ti-device-floppy" aria-hidden="true"></i> 저장</button>
+  </div>
+</div>
+
+<!-- ===== 안전점검 체크리스트 ===== -->
+<div id="s-checklist" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-safety')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">안전점검 체크리스트</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card"><div class="card-title">개인보호구</div><div id="cl-ppe"></div></div>
+    <div class="card"><div class="card-title">작업환경</div><div id="cl-env"></div></div>
+    <div class="card"><div class="card-title">장비·기계</div><div id="cl-equip"></div></div>
+    <div class="card">
+      <div class="stat-grid" style="margin-bottom:10px;">
+        <div class="stat-box"><div class="stat-num" id="cl-ok">0</div><div class="stat-lbl">양호</div></div>
+        <div class="stat-box"><div class="stat-num" id="cl-ng">0</div><div class="stat-lbl">불량</div></div>
+      </div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">조치사항</label><textarea placeholder="불량 항목 조치사항"></textarea></div>
+    </div>
+    <button class="btn btn-success" onclick="go('s-safety')"><i class="ti ti-device-floppy" aria-hidden="true"></i> 저장</button>
+    <button class="btn btn-outline"><i class="ti ti-download" aria-hidden="true"></i> PDF 출력</button>
+  </div>
+</div>
+
+<!-- ===== 사진 관리 ===== -->
+<div id="s-photo" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">사진 관리</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="ph-total">6</div><div class="stat-lbl">오늘 사진</div></div>
+      <div class="stat-box"><div class="stat-num">2</div><div class="stat-lbl">사진대지</div></div>
+    </div>
+    <div class="menu-item" onclick="go('s-photo-upload')">
+      <div class="menu-ico" style="background:#dbeafe;"><i class="ti ti-building" style="color:#2563eb;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">공정 사진</div><div class="menu-desc">시공 진행 과정</div></div>
+      <span class="badge bd-blue">3장</span>
+    </div>
+    <div class="menu-item" onclick="go('s-photo-upload')">
+      <div class="menu-ico" style="background:#dcfce7;"><i class="ti ti-zoom-check" style="color:#16a34a;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">품질 검측</div><div class="menu-desc">철근, 거푸집, 콘크리트</div></div>
+      <span class="badge bd-green">2장</span>
+    </div>
+    <div class="menu-item" onclick="go('s-photo-upload')">
+      <div class="menu-ico" style="background:#fef9c3;"><i class="ti ti-shield-check" style="color:#ca8a04;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">안전 점검</div><div class="menu-desc">보호구, 안전시설</div></div>
+      <span class="badge bd-yellow">1장</span>
+    </div>
+    <div class="menu-item" onclick="go('s-photo-upload')">
+      <div class="menu-ico" style="background:#fee2e2;"><i class="ti ti-flame" style="color:#dc2626;font-size:20px;" aria-hidden="true"></i></div>
+      <div class="menu-txt"><div class="menu-name">내화채움 / 방화댐퍼</div><div class="menu-desc">법적 의무 촬영</div></div>
+      <span class="badge bd-gray">0장</span>
+    </div>
+    <button class="btn btn-primary" onclick="go('s-photo-upload')"><i class="ti ti-camera" aria-hidden="true"></i> 사진 촬영 / 업로드</button>
+    <button class="btn btn-success" onclick="go('s-daiji')"><i class="ti ti-layout" aria-hidden="true"></i> 사진대지 자동 작성</button>
+  </div>
+</div>
+
+<!-- ===== 사진 업로드 ===== -->
+<div id="s-photo-upload" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-photo')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">사진 업로드</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="inp-group"><label class="inp-label">카테고리</label>
+        <select id="ph-cat"><option>공정 사진</option><option>품질 검측</option><option>안전 점검</option><option>내화채움 / 방화댐퍼</option></select>
+      </div>
+      <div class="inp-group"><label class="inp-label">공종 / 위치</label><input type="text" id="ph-loc" placeholder="예) A동 2층 슬래브 철근 배근"></div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">설명</label><textarea id="ph-desc" placeholder="촬영 내용 간단히 기재"></textarea></div>
+    </div>
+    <div class="card">
+      <div class="card-title">사진 선택</div>
+      <div class="photo-grid" id="ph-grid">
+        <label class="photo-cell" style="cursor:pointer;border:2px dashed #d1d5db;">
+          <input type="file" accept="image/*" multiple style="display:none;" onchange="handlePhoto(this)">
+          <i class="ti ti-plus" style="font-size:28px;color:#aaa;" aria-hidden="true"></i>
+          <span style="font-size:12px;color:#aaa;margin-top:4px;">사진 추가</span>
+        </label>
+      </div>
+      <div style="font-size:12px;color:#aaa;text-align:center;">날짜·시각·GPS 자동 태그</div>
+    </div>
+    <div class="card">
+      <div class="card-title">자동 태그 정보</div>
+      <div class="info-row"><span class="info-lbl">촬영 일시</span><span class="info-val" id="ph-time"></span></div>
+      <div class="info-row"><span class="info-lbl">GPS</span><span class="info-val" style="color:#16a34a;">현장 내 (사천 사남면)</span></div>
+      <div class="info-row"><span class="info-lbl">현장대리인</span><span class="info-val">김태완</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="aiPhotoCaption()"><i class="ti ti-robot" aria-hidden="true"></i> AI 설명 자동 작성</button>
+    <button class="btn btn-success" onclick="savePhoto()"><i class="ti ti-device-floppy" aria-hidden="true"></i> 저장</button>
+  </div>
+</div>
+
+<!-- ===== 사진대지 ===== -->
+<div id="s-daiji" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-photo')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">사진대지</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="inp-group"><label class="inp-label">대지 제목</label><input type="text" id="dj-title" value="A동 2층 슬래브 철근 배근 공정사진"></div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">사진 배치</label>
+        <select id="dj-layout"><option>1장/페이지</option><option selected>2장/페이지</option><option>4장/페이지</option></select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="genDaiji()"><i class="ti ti-robot" aria-hidden="true"></i> AI 사진대지 자동 생성</button>
+    <div id="dj-result" style="display:none;">
+      <div class="card">
+        <div style="background:#f8f9ff;border-radius:10px;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><i class="ti ti-photo" style="font-size:36px;color:#aaa;" aria-hidden="true"></i></div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">A동 2층 슬래브 철근 배근 완료 상태</div>
+        <div style="font-size:12px;color:#888;" id="dj-meta"></div>
+        <div style="margin-top:8px;">
+          <span class="badge bd-blue" style="margin-right:4px;">공정사진</span>
+          <span class="badge bd-blue" style="margin-right:4px;">철근배근</span>
+          <span class="badge bd-blue">A동2층</span>
+        </div>
+      </div>
+      <button class="btn btn-outline"><i class="ti ti-download" aria-hidden="true"></i> PDF 출력</button>
+      <button class="btn btn-success" onclick="go('s-photo')"><i class="ti ti-check" aria-hidden="true"></i> 완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 작업자 관리 ===== -->
+<div id="s-workers" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">작업자 관리</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="wk-total">5</div><div class="stat-lbl">등록 인원</div></div>
+      <div class="stat-box"><div class="stat-num">5</div><div class="stat-lbl">QR 발급</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">등록된 작업자</div>
+      <div id="worker-list"></div>
+    </div>
+    <button class="btn btn-primary" onclick="go('s-worker-reg')"><i class="ti ti-plus" aria-hidden="true"></i> 새 작업자 등록</button>
+  </div>
+</div>
+
+<!-- ===== 작업자 등록 ===== -->
+<div id="s-worker-reg" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-workers')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">작업자 등록</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">기본 정보</div>
+      <div class="inp-group"><label class="inp-label">이름 *</label><input type="text" id="wr-name" placeholder="홍길동"></div>
+      <div class="inp-row2">
+        <div><label class="inp-label">직종 *</label>
+          <select id="wr-role"><option value="">선택</option><option>철근공</option><option>형틀목수</option><option>콘크리트공</option><option>보통인부</option><option>특별인부</option><option>비계공</option><option>용접공</option><option>배관공</option><option>전기공</option></select>
+        </div>
+        <div><label class="inp-label">경력</label>
+          <select id="wr-exp"><option>1년 미만</option><option>1~3년</option><option selected>3~5년</option><option>5~10년</option><option>10년 이상</option></select>
+        </div>
+      </div>
+      <div class="inp-group"><label class="inp-label">연락처 *</label><input type="text" id="wr-phone" placeholder="010-0000-0000"></div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">소속업체</label><input type="text" id="wr-company" placeholder="업체명 (없으면 직용)"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">안전 정보</div>
+      <div class="inp-row2">
+        <div><label class="inp-label">생년월일</label><input type="text" id="wr-birth" placeholder="750526"></div>
+        <div><label class="inp-label">혈액형</label><select id="wr-blood"><option>A</option><option>B</option><option>AB</option><option>O</option></select></div>
+      </div>
+      <div class="inp-group"><label class="inp-label">비상연락처</label><input type="text" id="wr-emerg" placeholder="보호자 연락처"></div>
+      <div class="inp-group" style="margin:0;"><label class="inp-label">보유 자격증</label><input type="text" id="wr-cert" placeholder="거푸집기능사, 비계기능사 등"></div>
+    </div>
+    <button class="btn btn-primary" onclick="registerWorker()"><i class="ti ti-user-plus" aria-hidden="true"></i> 등록 및 QR 발급</button>
+    <button class="btn btn-gray" onclick="go('s-workers')">취소</button>
+  </div>
+</div>
+
+<!-- ===== 등록 성공 ===== -->
+<div id="s-worker-done" class="screen">
+  <div class="content" style="padding-top:3rem;">
+    <div class="success-wrap">
+      <div class="success-ico">✓</div>
+      <div class="success-title" id="wdone-name">등록 완료</div>
+      <div class="success-sub">QR코드가 자동 발급되었습니다</div>
+    </div>
+    <div class="card">
+      <div class="info-row"><span class="info-lbl">작업자 ID</span><span class="info-val" id="wdone-id"></span></div>
+      <div class="info-row"><span class="info-lbl">이름</span><span class="info-val" id="wdone-n"></span></div>
+      <div class="info-row"><span class="info-lbl">직종</span><span class="info-val" id="wdone-r"></span></div>
+      <div class="info-row"><span class="info-lbl">소속</span><span class="info-val" id="wdone-c"></span></div>
+    </div>
+    <div style="text-align:center;padding:1rem 0;">
+      <canvas id="wdone-qr" width="130" height="130"></canvas>
+      <div style="font-size:12px;color:#aaa;margin-top:6px;">출퇴근 체크용 QR코드</div>
+    </div>
+    <button class="btn btn-primary"><i class="ti ti-download" aria-hidden="true"></i> QR 저장</button>
+    <button class="btn btn-gray" onclick="go('s-workers')"><i class="ti ti-users" aria-hidden="true"></i> 작업자 목록</button>
+  </div>
+</div>
+
+<!-- ===== 데이터 관리 ===== -->
+<div id="s-storage" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">데이터 관리</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">저장 현황</div>
+      <div class="info-row"><span class="info-lbl">공사일보</span><span class="info-val">38일치</span></div>
+      <div class="info-row"><span class="info-lbl">안전서류</span><span class="info-val">114건</span></div>
+      <div class="info-row"><span class="info-lbl">사진</span><span class="info-val">456장</span></div>
+      <div style="margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;"><span>로컬 저장소</span><span>23MB / 50MB</span></div>
+        <div class="storage-bar"><div class="storage-fill" style="width:46%;"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">법정 보관기간</div>
+      <div class="retain-row">
+        <div class="retain-ico" style="background:#fee2e2;"><i class="ti ti-flame" style="color:#dc2626;" aria-hidden="true"></i></div>
+        <div class="retain-info"><div class="retain-name">내화채움 사진·동영상</div><div class="retain-law">영구 — 건축법 시행규칙 제18조의3</div></div>
+        <span class="badge bd-green">보관중</span>
+      </div>
+      <div class="retain-row">
+        <div class="retain-ico" style="background:#dbeafe;"><i class="ti ti-file-text" style="color:#2563eb;" aria-hidden="true"></i></div>
+        <div class="retain-info"><div class="retain-name">공사일보·품질서류</div><div class="retain-law">준공 후 10년 — 건설기술진흥법 제39조</div></div>
+        <span class="badge bd-blue">보관중</span>
+      </div>
+      <div class="retain-row">
+        <div class="retain-ico" style="background:#fef9c3;"><i class="ti ti-shield" style="color:#ca8a04;" aria-hidden="true"></i></div>
+        <div class="retain-info"><div class="retain-name">안전서류 (TBM·위험성평가)</div><div class="retain-law">3년 — 산업안전보건법 제164조</div></div>
+        <span class="badge bd-yellow">보관중</span>
+      </div>
+      <div class="retain-row">
+        <div class="retain-ico" style="background:#f3f4f6;"><i class="ti ti-users" style="color:#6b7280;" aria-hidden="true"></i></div>
+        <div class="retain-info"><div class="retain-name">출역일보</div><div class="retain-law">3년 — 건설근로자법</div></div>
+        <span class="badge bd-green">보관중</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">백업</div>
+      <button class="btn btn-success"><i class="ti ti-brand-google-drive" aria-hidden="true"></i> 구글드라이브 백업</button>
+      <button class="btn btn-outline"><i class="ti ti-file-zip" aria-hidden="true"></i> 전체 ZIP 내보내기</button>
+      <button class="btn btn-gray"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 월간 엑셀 리포트</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 알림 ===== -->
+<div id="s-alert" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">알림</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="alert-box alert-danger"><i class="ti ti-alert-circle" style="color:#dc2626;font-size:20px;flex-shrink:0;" aria-hidden="true"></i><div><div class="alert-title">위험성평가서 미작성</div><div class="alert-sub">산업안전보건법 의무 — 오늘 작업 전 작성 필요</div></div></div>
+    <div class="alert-box alert-warning"><i class="ti ti-clock" style="color:#ca8a04;font-size:20px;flex-shrink:0;" aria-hidden="true"></i><div><div class="alert-title">공사일보 미작성</div><div class="alert-sub">업무 종료 전 작성 권장</div></div></div>
+    <div class="alert-box alert-info"><i class="ti ti-flame" style="color:#2563eb;font-size:20px;flex-shrink:0;" aria-hidden="true"></i><div><div class="alert-title">내화채움 사진 미촬영</div><div class="alert-sub">A동 2층 배관 관통부 — 마감 전 필수 촬영</div></div></div>
+    <div class="card" style="margin-top:8px;">
+      <div class="card-title">이번 주 완료</div>
+      <div class="info-row"><span class="info-lbl">TBM 일지</span><span class="info-val" style="color:#16a34a;">5일 연속</span></div>
+      <div class="info-row"><span class="info-lbl">공사일보</span><span class="info-val" style="color:#16a34a;">4일 완료</span></div>
+      <div class="info-row"><span class="info-lbl">출역일보</span><span class="info-val" style="color:#16a34a;">5일 완료</span></div>
+      <div class="info-row"><span class="info-lbl">안전점검</span><span class="info-val" style="color:#16a34a;">5일 완료</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="go('s-home')">확인</button>
+  </div>
+</div>
+
+<!-- ===== 기록 조회 ===== -->
+<div id="s-history" class="screen">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="go('s-home')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;" aria-label="뒤로"><i class="ti ti-arrow-left"></i></button>
+      <div class="topbar-title">기록 조회</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('ht-all',this)">전체</button>
+      <button class="tab-btn" onclick="switchTab('ht-rep',this)">일보</button>
+      <button class="tab-btn" onclick="switchTab('ht-safe',this)">안전</button>
+      <button class="tab-btn" onclick="switchTab('ht-ph',this)">사진</button>
+    </div>
+    <div id="ht-all">
+      <div class="card"><div class="card-title">최근 7일</div><div id="hist-list"></div></div>
+      <button class="btn btn-outline"><i class="ti ti-download" aria-hidden="true"></i> 전체 내보내기 (ZIP)</button>
+    </div>
+    <div id="ht-rep" style="display:none;">
+      <div class="card"><div class="card-title">공사일보</div>
+        <div class="day-row"><div class="day-date">06.18 오늘</div><div class="day-tags"><span class="day-tag bd-gray">미작성</span></div></div>
+        <div class="day-row"><div class="day-date">06.17</div><div class="day-tags"><span class="day-tag bd-green">완료</span></div></div>
+        <div class="day-row"><div class="day-date">06.16</div><div class="day-tags"><span class="day-tag bd-green">완료</span></div></div>
+      </div>
+    </div>
+    <div id="ht-safe" style="display:none;">
+      <div class="card"><div class="card-title">안전서류</div>
+        <div class="day-row"><div class="day-date">06.18</div><div class="day-tags"><span class="day-tag bd-green">TBM</span><span class="day-tag bd-gray">위험성평가</span></div></div>
+        <div class="day-row"><div class="day-date">06.17</div><div class="day-tags"><span class="day-tag bd-green">TBM</span><span class="day-tag bd-green">위험성평가</span><span class="day-tag bd-green">점검표</span></div></div>
+      </div>
+    </div>
+    <div id="ht-ph" style="display:none;">
+      <div class="card"><div class="card-title">사진 기록</div>
+        <div class="day-row"><div class="day-date">06.18</div><div class="day-tags"><span class="day-tag bd-blue">6장</span><span class="day-tag bd-green">대지 2건</span></div></div>
+        <div class="day-row"><div class="day-date">06.17</div><div class="day-tags"><span class="day-tag bd-blue">8장</span><span class="day-tag bd-green">대지 3건</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 하단 네비게이션 ===== -->
+<nav class="navbar">
+  <button class="nav-item active" id="nav-home" onclick="navGo('s-home','nav-home')">
+    <i class="ti ti-home nav-icon"></i><span class="nav-label">홈</span>
+  </button>
+  <button class="nav-item" id="nav-attend" onclick="navGo('s-attend','nav-attend')">
+    <i class="ti ti-users nav-icon"></i><span class="nav-label">출퇴근</span>
+  </button>
+  <button class="nav-item" id="nav-safety" onclick="navGo('s-safety','nav-safety')">
+    <i class="ti ti-shield nav-icon"></i><span class="nav-label">안전</span>
+  </button>
+  <button class="nav-item" id="nav-photo" onclick="navGo('s-photo','nav-photo')">
+    <i class="ti ti-camera nav-icon"></i><span class="nav-label">사진</span>
+  </button>
+  <button class="nav-item" id="nav-history" onclick="navGo('s-history','nav-history')">
+    <i class="ti ti-history nav-icon"></i><span class="nav-label">기록</span>
+  </button>
+</nav>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<script>
+const workers=[
+  {id:'W001',name:'김철수',role:'철근공',company:'홍길동건설',phone:'010-1234-5678'},
+  {id:'W002',name:'이영희',role:'형틀목수',company:'대한목공',phone:'010-9876-5432'},
+  {id:'W003',name:'박민준',role:'보통인부',company:'직용',phone:'010-5555-1234'},
+  {id:'W004',name:'최강호',role:'콘크리트공',company:'강호건설',phone:'010-3333-5678'},
+  {id:'W005',name:'정수현',role:'비계공',company:'직용',phone:'010-7777-9999'},
+];
+let attendance={W001:{in:'08:05',out:null},W002:{in:'08:12',out:null},W003:{in:'08:30',out:null},W004:{in:'08:08',out:null},W005:{in:'08:20',out:null}};
+let nextWid=6;
+let curWeather='맑음';
+
+function nowStr(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+function todayStr(){const d=new Date();return d.getFullYear()+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getDate().toString().padStart(2,'0');}
+function todayFull(){const d=new Date();const days=['일','월','화','수','목','금','토'];return todayStr()+' ('+days[d.getDay()]+')';}
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function navGo(screenId, navId){
+  go(screenId);
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(navId).classList.add('active');
+}
+
+function switchTab(tabId,btn){
+  ['ht-all','ht-rep','ht-safe','ht-ph'].forEach(t=>{const el=document.getElementById(t);if(el)el.style.display='none';});
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(tabId).style.display='block';
+  btn.classList.add('active');
+}
+
+function selW(w){
+  curWeather=w;
+  ['맑음','흐림','비','강풍'].forEach(x=>{
+    const el=document.getElementById('w-'+x);
+    if(el)el.className='weather-btn'+(x===w?' active':'');
+  });
+}
+
+function buildAttList(){
+  const el=document.getElementById('att-list');
+  if(!el)return;
+  let inC=0,outC=0;
+  el.innerHTML=workers.map(w=>{
+    const rec=attendance[w.id];
+    let avCls='av-none',status='미출근',timeStr='';
+    if(rec){if(rec.out){avCls='av-out';status='퇴근';timeStr=rec.in+' ~ '+rec.out;outC++;}else{avCls='av-in';status='출근중';timeStr=rec.in+' 출근';inC++;}}
+    const bdCls=rec?(rec.out?'bd-red':'bd-green'):'bd-gray';
+    return`<div class="worker-row"><div class="avatar ${avCls}">${w.name.substring(0,2)}</div><div class="winfo"><div class="wname">${w.name}</div><div class="wrole">${w.role} · ${w.company}</div>${timeStr?`<div class="wtime">${timeStr}</div>`:''}</div><span class="badge ${bdCls}">${status}</span></div>`;
+  }).join('');
+  const hi=document.getElementById('att-in');const ho=document.getElementById('att-out');
+  const si=document.getElementById('h-in');
+  if(hi)hi.textContent=inC;if(ho)ho.textContent=outC;if(si)si.textContent=inC;
+}
+
+function buildQRList(){
+  const el=document.getElementById('qr-worker-list');
+  if(!el)return;
+  el.innerHTML=workers.map(w=>{
+    const rec=attendance[w.id];
+    const isIn=rec&&!rec.out;
+    const btnCls=isIn?'btn-success':'btn-primary';
+    const btnTxt=!rec?'출근':'퇴근';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5;"><div class="avatar ${isIn?'av-in':'av-none'}">${w.name.substring(0,2)}</div><div class="winfo"><div class="wname">${w.name}</div><div class="wrole">${w.role}</div></div><button class="btn ${btnCls}" style="width:auto;padding:7px 14px;margin:0;font-size:13px;" onclick="doScan('${w.id}')">${btnTxt}</button></div>`;
+  }).join('');
+}
+
+function doScan(wid){
+  const w=workers.find(x=>x.id===wid);
+  const t=nowStr();
+  const rec=attendance[wid];
+  let type='in';
+  if(!rec){attendance[wid]={in:t,out:null};}
+  else if(!rec.out){attendance[wid].out=t;type='out';}
+  else{attendance[wid]={in:t,out:null};}
+  const wrap=document.getElementById('qr-result-wrap');
+  const card=document.getElementById('qr-result-card');
+  const isIn=type==='in';
+  if(wrap)wrap.style.display='block';
+  card.style.background=isIn?'#dcfce7':'#fee2e2';
+  document.getElementById('qr-result-name').textContent=w.name+(isIn?' 출근 완료':' 퇴근 완료');
+  document.getElementById('qr-result-name').style.color=isIn?'#16a34a':'#dc2626';
+  document.getElementById('qr-result-sub').textContent=w.role+' · '+w.company;
+  document.getElementById('qr-result-time').textContent=t;
+  buildAttList();buildQRList();
+  wrap.scrollIntoView({behavior:'smooth'});
+}
+
+function buildWorkerList(){
+  const el=document.getElementById('worker-list');
+  if(!el)return;
+  const colors=['av-in','av-out','av-none'];
+  el.innerHTML=workers.map((w,i)=>`
+    <div class="worker-row">
+      <div class="avatar ${colors[i%3]}">${w.name.substring(0,2)}</div>
+      <div class="winfo"><div class="wname">${w.name}</div><div class="wrole">${w.role} · ${w.company}</div></div>
+      <span class="badge bd-blue" style="cursor:pointer;" onclick="showQRCard('${w.id}')">QR</span>
+    </div>`).join('');
+}
+
+function drawQR(canvasId,text){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,130,130);
+  ctx.fillStyle='#1a1a1a';
+  const seed=text.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const cells=9,cell=Math.floor(114/cells),off=8;
+  const corners=[[0,0],[0,cells-3],[cells-3,0]];
+  corners.forEach(([r,c])=>{for(let dr=0;dr<3;dr++)for(let dc=0;dc<3;dc++){ctx.fillRect(off+(c+dc)*cell,off+(r+dr)*cell,cell-1,cell-1);}});
+  for(let r=0;r<cells;r++)for(let c=0;c<cells;c++){
+    const inCorner=(r<3&&c<3)||(r<3&&c>=cells-3)||(r>=cells-3&&c<3);
+    if(!inCorner&&(seed*r*31+c*17+r+c)%7<4)ctx.fillRect(off+c*cell,off+r*cell,cell-1,cell-1);
+  }
+}
+
+function showQRCard(wid){
+  const w=workers.find(x=>x.id===wid);
+  alert('QR코드: '+w.name+' ('+w.id+')\n실제 앱에서는 별도 화면에서 QR 이미지를 보여드립니다.');
+}
+
+function registerWorker(){
+  const name=document.getElementById('wr-name').value.trim();
+  const role=document.getElementById('wr-role').value;
+  const phone=document.getElementById('wr-phone').value.trim();
+  const company=document.getElementById('wr-company').value.trim()||'직용';
+  if(!name||!role||!phone){alert('이름, 직종, 연락처는 필수입니다.');return;}
+  const id='W'+String(nextWid).padStart(3,'0');
+  workers.push({id,name,role,company,phone});
+  nextWid++;
+  document.getElementById('wdone-name').textContent=name+' 등록 완료';
+  document.getElementById('wdone-id').textContent=id;
+  document.getElementById('wdone-n').textContent=name;
+  document.getElementById('wdone-r').textContent=role;
+  document.getElementById('wdone-c').textContent=company;
+  document.getElementById('wk-total').textContent=workers.length;
+  buildWorkerList();
+  go('s-worker-done');
+  setTimeout(()=>drawQR('wdone-qr',id+name+role),200);
+}
+
+function buildChecklist(containerId,items,prefix){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML=items.map((item,i)=>`
+    <div class="check-item">
+      <div class="chkbox" id="cb-${prefix}${i}" onclick="toggleChk('${prefix}${i}')"></div>
+      <span class="chk-txt">${item}</span>
+    </div>`).join('');
+}
+
+const checks={};
+function toggleChk(key){
+  checks[key]=!checks[key];
+  const el=document.getElementById('cb-'+key);
+  if(checks[key]){el.classList.add('on');el.textContent='✓';}
+  else{el.classList.remove('on');el.textContent='';}
+  const all=['ppe0','ppe1','ppe2','ppe3','ppe4','env0','env1','env2','env3','env4','eq0','eq1','eq2','eq3'];
+  const ok=all.filter(k=>checks[k]).length;
+  const okEl=document.getElementById('cl-ok');const ngEl=document.getElementById('cl-ng');
+  if(okEl)okEl.textContent=ok;if(ngEl)ngEl.textContent=all.length-ok;
+}
+
+function signTBM(){
+  document.getElementById('tbm-sign-txt').innerHTML='<span style="color:#16a34a;font-weight:600;">✓ 김태완 서명 완료</span>';
+  document.getElementById('tbm-sign').style.background='#dcfce7';
+  document.getElementById('tbm-sign').style.borderColor='#16a34a';
+}
+
+function saveTBM(){
+  go('s-safety');
+  const m=document.querySelectorAll('#s-safety .menu-item');
+  if(m[0]){const b=m[0].querySelector('.badge');if(b){b.className='badge bd-green';b.textContent='완료';}}
+}
+
+async function aiTBM(){
+  const work=document.getElementById('tbm-work').value;
+  const risk=document.getElementById('tbm-risk').value;
+  go('s-ai-load');
+  document.getElementById('ai-load-msg').textContent='TBM 지시사항 작성 중...';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:400,messages:[{role:'user',content:`건설현장 TBM 안전 지시사항을 3~4줄로 작성. 공종: ${work}, 위험: ${risk}. 현장 실무자가 작업자에게 말하는 톤으로.`}]})});
+    const data=await res.json();
+    document.getElementById('tbm-inst').value=data.content[0].text;
+  }catch{
+    document.getElementById('tbm-inst').value=`오늘 ${work} 작업 시 ${risk}에 각별히 주의하시기 바랍니다. 작업 전 안전모, 안전화, 안전대를 반드시 착용하고 이상 발견 시 즉시 작업을 중단하고 보고해주세요. 2인 1조 작업 원칙을 반드시 준수하세요.`;
+  }
+  go('s-tbm');
+}
+
+async function aiRisk(){
+  const work=document.getElementById('risk-work').value;
+  go('s-ai-load');
+  document.getElementById('ai-load-msg').textContent='위험성평가 생성 중...';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,messages:[{role:'user',content:`건설현장 ${work} 위험성평가 3개를 JSON으로. [{"title":"위험명","level":"상|중|하","measure":"감소대책"}]. JSON만.`}]})});
+    const data=await res.json();
+    const text=data.content[0].text.replace(/```json|```/g,'').trim();
+    const items=JSON.parse(text);
+    document.getElementById('risk-items').innerHTML=items.map(item=>`
+      <div class="risk-item"><div class="risk-head"><span class="risk-name">${item.title}</span><span class="${item.level==='상'?'rl-h':item.level==='중'?'rl-m':'rl-l'}">${item.level}</span></div><div class="risk-measure">${item.measure}</div></div>`).join('');
+  }catch{
+    document.getElementById('risk-items').innerHTML=`<div class="risk-item"><div class="risk-head"><span class="risk-name">추락 — 고소작업 추락</span><span class="rl-h">상</span></div><div class="risk-measure">안전대 착용, 추락방지망 설치</div></div><div class="risk-item"><div class="risk-head"><span class="risk-name">협착 — 자재 취급 끼임</span><span class="rl-m">중</span></div><div class="risk-measure">2인 1조, 신호수 배치</div></div>`;
+  }
+  go('s-risk');
+}
+
+async function genReport(){
+  const work=document.getElementById('r-work').value;
+  const loc=document.getElementById('r-loc').value||'A동 2층';
+  const mat=document.getElementById('r-mat').value||'HD19 철근 2톤';
+  const equip=document.getElementById('r-equip').value||'타워크레인 1대';
+  const special=document.getElementById('r-special').value;
+  const temp=document.getElementById('r-temp').value;
+  const humid=document.getElementById('r-humid').value;
+  go('s-ai-load');
+  const msgs=['출역 데이터 분석 중...','작업 내용 구성 중...','일보 초안 작성 중...'];
+  let mi=0;
+  const iv=setInterval(()=>{const el=document.getElementById('ai-load-msg');if(el)el.textContent=msgs[mi++%msgs.length];},800);
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`공사일보 작성. JSON만 반환.\n공종:${work}, 위치:${loc}, 날씨:${curWeather} ${temp}°C, 출역:철근공2 형틀목수2 보통인부1, 자재:${mat}, 장비:${equip}, 특이:${special||'없음'}\n{"work":"작업내용 2~3문장","mat":"자재장비 현황","next":"익일계획 1~2�
